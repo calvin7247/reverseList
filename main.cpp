@@ -28,6 +28,9 @@ void createNullCheck();
 
 unsigned long long getTotalSystemMemory();
 
+// free package function
+void Free(void *p);
+
 //bad case
 //1. array points to a null pointer
 //2. an illegal length for array, may be a negative number, zero, or a large number
@@ -42,11 +45,16 @@ Node *createLinkedList(int *array, int length) {
 
     long long totalMemory = getTotalSystemMemory();
     // 0.9 is a experienced value, we can't allocate all memory for process
-    // assume that you have 32GB RAM on 64-bit operation system
-    // the total node size is 32GB/8/16=2G=2*1024*1024=2^21
+    // Assume that you have 2GB RAM on 64-bit operation system
+    // the total node length is about 1.6^30, and size is 1.6GB
+    // the total array length is same as node, and size is 0.4GB
+    // the calculation course:
+    // 2GB/(16+4)B=0.1*2^30, 0.1*2^30*16B=1.6GB
+    // 0.1*2^30*4B=0.4GB
     // 2^21<2^31-1
-    int NODE_MAX = totalMemory / BITS_TO_BYTE / NODE_LENGTH * 0.9;
-    if(length > NODE_MAX) {
+    int NODE_MAX = totalMemory / (BITS_TO_BYTE / (float)NODE_LENGTH * 0.9);
+    if (length > NODE_MAX) {
+        printf("Too large memory for allocation");
         return nullptr;
     }
 
@@ -80,7 +88,7 @@ void destroyLinkedList(Node *node) {
     Node *p;
     while (node) {
         p = node->next;
-        free(node);
+        Free(node);
         node = p;
     }
 }
@@ -126,6 +134,32 @@ void headNullCheck(Node *head) {
     if (head) {
         printf("null check error.");
     }
+}
+
+//2^31*8bit=2^31Byte=2GB
+void createBigArrayCheck() {
+    srand((unsigned) time(NULL));
+    int length = INT32_MAX;
+//    int length = 100;
+    int *array = (int *) malloc(length * sizeof(int));
+    for (int i = 0; i < length; i++) {
+        array[i] = rand();
+    }
+    Node *head = createLinkedList(array, length);
+    Free(array);
+    createNullCheck();
+    destroyLinkedList(head);
+}
+
+void createLinkedListCheck() {
+    createNullCheck();
+    createBigArrayCheck();
+}
+
+
+void Free(void *p) {
+    free(p);
+    p = nullptr;
 }
 
 //get all available memory on Mac(unix)
