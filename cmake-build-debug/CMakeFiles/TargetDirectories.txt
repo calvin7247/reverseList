@@ -1,3 +1,0 @@
-/Users/sky7282/CLionProjects/reverseList/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/Users/sky7282/CLionProjects/reverseList/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/sky7282/CLionProjects/reverseList/cmake-build-debug/CMakeFiles/untitled4.dir
