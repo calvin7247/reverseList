@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 struct Node {
     Node *next;
@@ -8,6 +9,7 @@ struct Node {
 };
 
 const int NODE_LENGTH = sizeof(Node);
+const int BITS_TO_BYTE = 8;
 bool DEBUG = true;
 
 Node *createLinkedList(int *array, int length);
@@ -24,6 +26,8 @@ void headNullCheck(Node *head);
 
 void createNullCheck();
 
+unsigned long long getTotalSystemMemory();
+
 //bad case
 //1. array points to a null pointer
 //2. an illegal length for array, may be a negative number, zero, or a large number
@@ -33,6 +37,16 @@ Node *createLinkedList(int *array, int length) {
         return nullptr;
     }
     if (length <= 0) {
+        return nullptr;
+    }
+
+    long long totalMemory = getTotalSystemMemory();
+    // 0.9 is a experienced value, we can't allocate all memory for process
+    // assume that you have 32GB RAM on 64-bit operation system
+    // the total node size is 32GB/8/16=2G=2*1024*1024=2^21
+    // 2^21<2^31-1
+    int NODE_MAX = totalMemory / BITS_TO_BYTE / NODE_LENGTH * 0.9;
+    if(length > NODE_MAX) {
         return nullptr;
     }
 
@@ -114,6 +128,15 @@ void headNullCheck(Node *head) {
     }
 }
 
+//get all available memory on Mac(unix)
+// 17179869184(2GB) bits on my Mac
+// 17179869184 >> 2^31-1
+unsigned long long getTotalSystemMemory() {
+    long pages = sysconf(_SC_PHYS_PAGES);
+    long page_size = sysconf(_SC_PAGE_SIZE);
+    return pages * page_size;
+}
+
 //normal case
 //with circle
 void test() {
@@ -132,14 +155,13 @@ void test() {
 
 //野指针
 int main() {
-    int array[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    const int ARRAY_LENGTH = sizeof(array) / sizeof(int);
-    Node *head = createLinkedList(array, ARRAY_LENGTH);
-    print(head);
-    head = reverseLinkedList(head);
-    print(head);
-    destroyLinkedList(head);
-    print(head);
-
+//    int array[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+//    const int ARRAY_LENGTH = sizeof(array) / sizeof(int);
+//    Node *head = createLinkedList(array, ARRAY_LENGTH);
+//    print(head);
+//    head = reverseLinkedList(head);
+//    print(head);
+//    destroyLinkedList(head);
+//    print(head);
     return 0;
 }
