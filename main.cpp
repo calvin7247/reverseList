@@ -28,6 +28,8 @@ void createNullCheck();
 
 unsigned long long getTotalSystemMemory();
 
+bool checkSame(int *arr, int length, Node *head, bool reverse);
+
 // free package function
 void Free(void *p);
 
@@ -51,7 +53,6 @@ Node *createLinkedList(int *array, int length) {
     // the calculation course:
     // 2GB/(16+4)B=0.1*2^30, 0.1*2^30*16B=1.6GB
     // 0.1*2^30*4B=0.4GB
-    // 2^21<2^31-1
     int NODE_MAX = totalMemory / (BITS_TO_BYTE / (float)NODE_LENGTH * 0.9);
     if (length > NODE_MAX) {
         printf("Too large memory for allocation");
@@ -102,6 +103,40 @@ Node *reverseLinkedList(Node *head) {
         pre = temp;
     }
     return cur;
+}
+
+bool checkSame(int *arr, int length, Node *head, bool reverse) {
+    if(arr && head && length > 0) {
+        int i = 0;
+        if(reverse) {
+            i = length - 1;
+            while(head) {
+                if(i < 0) {
+                    return false;
+                }
+                if(arr[i] == head->val) {
+                    i--;
+                    head = head->next;
+                } else {
+                    return false;
+                }
+            }
+        } else {
+            while(head) {
+                if(i > length) {
+                    return false;
+                }
+                if(arr[i] == head->val) {
+                    i++;
+                    head = head->next;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 void print(Node *head) {
@@ -187,6 +222,7 @@ void test() {
 //    int randomLength =
 }
 
+//环路检测与避免
 //野指针
 int main() {
 //    int array[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -197,5 +233,6 @@ int main() {
 //    print(head);
 //    destroyLinkedList(head);
 //    print(head);
+
     return 0;
 }
