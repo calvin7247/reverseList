@@ -24,6 +24,10 @@ void headNullCheck(Node *head);
 
 void createNullCheck();
 
+//bad case
+//1. array points to a null pointer
+//2. an illegal length for array, may be a negative number, zero, or a large number
+//3. index across its actual length (cannot process this exception)
 Node *createLinkedList(int *array, int length) {
     if (array == nullptr) {
         return nullptr;
@@ -92,9 +96,9 @@ void print(Node *head) {
     printf("\n");
 }
 
+//if normal, it should not have any results
 void createNullCheck() {
     int *array = nullptr;
-    //if normal, it should not have any results
     Node *head = nullptr;
     head = createLinkedList(array, -1);
     headNullCheck(head);
