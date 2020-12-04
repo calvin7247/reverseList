@@ -17,7 +17,7 @@ unsigned long long getTotalSystemMemory() {
 
 
 void printLinkedList(Node *head) {
-    if (DEBUG) {
+    if (!DEBUG) {
         return;
     }
     if (head == nullptr) {
@@ -31,7 +31,7 @@ void printLinkedList(Node *head) {
 }
 
 void printArray(int *array, int length) {
-    if (DEBUG) {
+    if (!DEBUG) {
         return;
     }
     for (int i = 0; i < length; ++i) {
