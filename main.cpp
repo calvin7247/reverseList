@@ -7,7 +7,7 @@ void test() {
     parameterTest();
 
     //illegal length for create method
-    createNullCheck();
+    createIllegalLengthCheck();
 
     //large array for create method
     createBigArrayCheck();

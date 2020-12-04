@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 //if normal, it should not have any results
-void createNullCheck() {
+void createIllegalLengthCheck() {
     printf("**Test for CreateLinkedList with illegal length start.**\n");
 
     int array[] = {1, 2, 3};

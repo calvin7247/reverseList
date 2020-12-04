@@ -70,31 +70,31 @@ Node *reverseLinkedList(Node *head) {
     return cur;
 }
 
-void destroyLinkedList(Node *node) {
-    if (node == nullptr) {
+void destroyLinkedList(Node *head) {
+    if (head == nullptr) {
         printf("DestroyLinkedList method, null pointer error.\n");
         return;
     }
 
-    //loop test, break the chain and release the node
-    Node *res = loopTest(node);
+    //loop test, break the chain and release the head
+    Node *res = loopTest(head);
     if (res != nullptr) {
-        int length = loopLength(node);
-        Node *entrance = loopEntrance(node, length);
+        int length = loopLength(head);
+        Node *entrance = loopEntrance(head, length);
         Node *end = entrance;
         for (int i = 0; i < length - 1; i++) {
             end = end->next;
         }
         end->next = nullptr;
-        printLinkedList(node);
+        printLinkedList(head);
     }
 
     Node *p;
-    while (node) {
-        p = node->next;
-        free(node);
-        node = nullptr;
-        node = p;
+    while (head) {
+        p = head->next;
+        free(head);
+        head = nullptr;
+        head = p;
     }
 }
 
