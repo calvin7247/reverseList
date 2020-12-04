@@ -21,7 +21,7 @@ void destroyLinkedList(Node *node);
 
 void appendNode(Node *p, int val);
 
-void print(Node *head);
+void printLinkedList(Node *head);
 
 void headNullCheck(Node *head);
 
@@ -31,10 +31,11 @@ unsigned long long getTotalSystemMemory();
 
 bool checkSame(int *arr, int length, Node *head, bool reverse);
 
-int* createArray(int length);
+Node* loopTest(Node *head);
 
-// free package function
-void Free(void *p);
+int loopLength(Node *);
+
+Node* loopEntrance(Node *);
 
 //bad case
 //1. array points to a null pointer
@@ -114,15 +115,15 @@ Node *reverseLinkedList(Node *head) {
 }
 
 bool checkSame(int *arr, int length, Node *head, bool reverse) {
-    if(arr && head && length > 0) {
+    if (arr && head && length > 0) {
         int i = 0;
-        if(reverse) {
+        if (reverse) {
             i = length - 1;
-            while(head) {
-                if(i < 0) {
+            while (head) {
+                if (i < 0) {
                     return false;
                 }
-                if(arr[i] == head->val) {
+                if (arr[i] == head->val) {
                     i--;
                     head = head->next;
                 } else {
@@ -130,11 +131,11 @@ bool checkSame(int *arr, int length, Node *head, bool reverse) {
                 }
             }
         } else {
-            while(head) {
-                if(i > length) {
+            while (head) {
+                if (i > length) {
                     return false;
                 }
-                if(arr[i] == head->val) {
+                if (arr[i] == head->val) {
                     i++;
                     head = head->next;
                 } else {
@@ -142,12 +143,15 @@ bool checkSame(int *arr, int length, Node *head, bool reverse) {
                 }
             }
         }
+        if (i < length) {
+            return false;
+        }
         return true;
     }
     return false;
 }
 
-void print(Node *head) {
+void printLinkedList(Node *head) {
     if (!DEBUG) {
         return;
     }
@@ -161,10 +165,21 @@ void print(Node *head) {
     printf("\n");
 }
 
+void printArray(int *array, int length) {
+    if (!DEBUG) {
+        return;
+    }
+    for (int i = 0; i < length; ++i) {
+        printf("%d ", array[i]);
+    }
+    printf("\n");
+}
+
+
 //if normal, it should not have any results
 void createNullCheck() {
     int *array = nullptr;
-    int anotherArr[] = {1,2,3};
+    int anotherArr[] = {1, 2, 3};
     Node *head = nullptr;
     printf("**Test for CreateLinkedList start.**\n");
     //these case should return nullptr
@@ -179,7 +194,7 @@ void createNullCheck() {
     head = createLinkedList(anotherArr, 0);
     headNullCheck(head);
     //normal case should return an existing pointer
-    head = createLinkedList(anotherArr, sizeof(anotherArr)/sizeof(int));
+    head = createLinkedList(anotherArr, sizeof(anotherArr) / sizeof(int));
     headNullCheck(head);
     destroyLinkedList(head);
     head = nullptr;
@@ -202,13 +217,13 @@ void createBigArrayCheck() {
     int length = 1.2f * ARRAY_LENGTH_MAX;
 
     srand((unsigned) time(nullptr));
-    int *array = (int *) malloc((long)length * sizeof(int));
+    int *array = (int *) malloc((long) length * sizeof(int));
     for (int i = 0; i < length; i++) {
         array[i] = rand();
     }
 
     Node *head = createLinkedList(array, length);
-    if(head == nullptr) {
+    if (head == nullptr) {
         printf("CreateLinkedList for big array failed.\n");
     }
     free(array);
@@ -230,46 +245,138 @@ unsigned long long getTotalSystemMemory() {
     return pages * page_size / BITS_TO_BYTE;
 }
 
+void normalCaseTest() {
+    int NORMAL_LENGTH = 5;
+    srand((unsigned) time(nullptr));
+    int *normalArray = (int *) malloc(NORMAL_LENGTH * sizeof(int));
+    for (int i = 0; i < NORMAL_LENGTH; i++) {
+        normalArray[i] = rand();
+    }
+    Node *head = createLinkedList(normalArray, NORMAL_LENGTH);
+    bool checkRes = checkSame(normalArray, NORMAL_LENGTH, head, false);
+//    printArray(normalArray, NORMAL_LENGTH);
+//    printLinkedList(head);
+    if (!checkRes) {
+        printf("Got some error\n");
+    } else {
+        printf("Arrays are same as LinkListNodes.\n");
+    }
+    head = reverseLinkedList(head);
+    checkSame(normalArray, NORMAL_LENGTH, head, true);
+//    printArray(normalArray, NORMAL_LENGTH);
+//    printLinkedList(head);
+    if (!checkRes) {
+        printf("Got some error\n");
+    } else {
+        printf("Arrays are same as ReverseLinkListNodes.\n");
+    }
+    free(normalArray);
+    normalArray = nullptr;
+    destroyLinkedList(head);
+}
+
+Node* loopTest(Node *head) {
+    if(!head) {
+        printf("LoopTest method with null pointer error.");
+        return nullptr;
+    }
+    Node *slow = head;
+    Node *fast = head;
+    while(slow) {
+        slow = slow->next;
+        fast = fast->next->next;
+        if(slow == fast) {
+            return slow;
+        }
+    }
+    return nullptr;
+}
+
+int loopLength(Node *head) {
+    Node *loopEntrance = loopTest(head);
+    if(!loopEntrance) {
+        return 0;
+    }
+    int length = 1;
+    Node *p = loopEntrance->next;
+    while(p != loopEntrance) {
+        ++length;
+        p = p->next;
+    }
+    return length;
+}
+
+Node* loopEntrance(Node *head) {
+    int length = loopLength(head);
+    if(length > 0) {
+        Node *entrance = head;
+        for(int i = 0; i < length; i++) {
+            entrance = entrance->next;
+        }
+        while(head != entrance) {
+            head = head->next;
+            entrance = entrance->next;
+        }
+        return entrance;
+    } else {
+        return nullptr;
+    }
+}
+
+void loopCaseTest() {
+    int NORMAL_LENGTH = 5;
+    srand((unsigned) time(nullptr));
+    int *normalArray = (int *) malloc(NORMAL_LENGTH * sizeof(int));
+    for (int i = 0; i < NORMAL_LENGTH; i++) {
+        normalArray[i] = rand();
+    }
+    Node *head = createLinkedList(normalArray, NORMAL_LENGTH);
+    bool checkRes = checkSame(normalArray, NORMAL_LENGTH, head, false);
+//    printArray(normalArray, NORMAL_LENGTH);
+//    printLinkedList(head);
+    if (!checkRes) {
+        printf("Got some error\n");
+    } else {
+        printf("Arrays are same as LinkListNodes.\n");
+    }
+    head = reverseLinkedList(head);
+    checkSame(normalArray, NORMAL_LENGTH, head, true);
+//    printArray(normalArray, NORMAL_LENGTH);
+//    printLinkedList(head);
+    if (!checkRes) {
+        printf("Got some error\n");
+    } else {
+        printf("Arrays are same as ReverseLinkListNodes.\n");
+    }
+    free(normalArray);
+    normalArray = nullptr;
+    destroyLinkedList(head);
+}
+
+
 //normal case
 //with circle
 void test() {
 
     //bad case test
-    createLinkedListCheck();
-//
-//    //normal case
-//    int NORMAL_LENGTH = 100;
-//    int *normalArray = createArray(NORMAL_LENGTH);
-//    Node *head = createLinkedList(normalArray, NORMAL_LENGTH);
-//    Free(normalArray);
-//    bool checkRes = checkSame(normalArray, NORMAL_LENGTH, head, false);
-//    if(!checkRes) {
-//        printf("get some error");
-//    } else {
-//        printf("ok");
-//    }
-//    reverseLinkedList(head);
-//    checkSame(normalArray, NORMAL_LENGTH, head, true);
-//    if(!checkRes) {
-//        printf("get some error");
-//    } else {
-//        printf("ok");
-//    }
-//    destroyLinkedList(head);
+//    createLinkedListCheck();
+
+    //normal case
+    normalCaseTest();
+
+    //loop case
 
 }
 
-//环路检测与避免
-//野指针
 int main() {
 //    int array[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 //    const int ARRAY_LENGTH = sizeof(array) / sizeof(int);
 //    Node *head = createLinkedList(array, ARRAY_LENGTH);
-//    print(head);
+//    printLinkedList(head);
 //    head = reverseLinkedList(head);
-//    print(head);
+//    printLinkedList(head);
 //    destroyLinkedList(head);
-//    print(head);
+//    printLinkedList(head);
     test();
 
     return 0;
