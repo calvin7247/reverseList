@@ -280,13 +280,19 @@ Node* loopTest(Node *head) {
         printf("LoopTest method with null pointer error.");
         return nullptr;
     }
-    Node *slow = head;
-    Node *fast = head;
-    while(slow) {
-        slow = slow->next;
-        fast = fast->next->next;
+    Node *slow = head->next;
+    if(slow == nullptr) {
+        return nullptr;
+    }
+    Node *fast = slow->next;
+    while(fast && slow) {
         if(slow == fast) {
             return slow;
+        }
+        slow = slow->next;
+        fast = fast->next;
+        if(fast != nullptr) {
+            fast = fast->next;
         }
     }
     return nullptr;
@@ -322,6 +328,7 @@ Node* loopEntrance(Node *head) {
         return nullptr;
     }
 }
+
 
 void loopCaseTest() {
     int NORMAL_LENGTH = 5;
