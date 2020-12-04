@@ -9,6 +9,7 @@ struct Node {
 };
 
 const int NODE_LENGTH = sizeof(Node);
+const int INT_NODE_LENGTH = sizeof(Node) + sizeof(int);
 const int BITS_TO_BYTE = 8;
 bool DEBUG = true;
 
@@ -30,6 +31,8 @@ unsigned long long getTotalSystemMemory();
 
 bool checkSame(int *arr, int length, Node *head, bool reverse);
 
+int* createArray(int length);
+
 // free package function
 void Free(void *p);
 
@@ -39,13 +42,15 @@ void Free(void *p);
 //3. index across its actual length (cannot process this exception)
 Node *createLinkedList(int *array, int length) {
     if (array == nullptr) {
+        printf("CreateLinkedList method, null pointer error\n");
         return nullptr;
     }
     if (length <= 0) {
+        printf("CreateLinkedList method, illegal linkedList length %d.\n", length);
         return nullptr;
     }
 
-    long long totalMemory = getTotalSystemMemory();
+    long long actualMemory = getTotalSystemMemory();
     // 0.9 is a experienced value, we can't allocate all memory for process
     // Assume that you have 2GB RAM on 64-bit operation system
     // the total node length is about 1.6^30, and size is 1.6GB
@@ -53,9 +58,10 @@ Node *createLinkedList(int *array, int length) {
     // the calculation course:
     // 2GB/(16+4)B=0.1*2^30, 0.1*2^30*16B=1.6GB
     // 0.1*2^30*4B=0.4GB
-    int NODE_MAX = totalMemory / (BITS_TO_BYTE / (float)NODE_LENGTH * 0.9);
+//    printf("%d", length);
+    long NODE_MAX = actualMemory * 0.9f / INT_NODE_LENGTH;
     if (length > NODE_MAX) {
-        printf("Too large memory for allocation");
+        printf("CreateLinkedList method, too large memory for allocation\n");
         return nullptr;
     }
 
@@ -84,12 +90,14 @@ void appendNode(Node *p, int val) {
 
 void destroyLinkedList(Node *node) {
     if (node == nullptr) {
+        printf("DestroyLinkedList method, null pointer error.\n");
         return;
     }
     Node *p;
     while (node) {
         p = node->next;
-        Free(node);
+        free(node);
+        node = nullptr;
         node = p;
     }
 }
@@ -156,34 +164,57 @@ void print(Node *head) {
 //if normal, it should not have any results
 void createNullCheck() {
     int *array = nullptr;
+    int anotherArr[] = {1,2,3};
     Node *head = nullptr;
+    printf("**Test for CreateLinkedList start.**\n");
+    //these case should return nullptr
     head = createLinkedList(array, -1);
     headNullCheck(head);
     head = createLinkedList(array, 0);
     headNullCheck(head);
     head = createLinkedList(array, 10);
     headNullCheck(head);
+    head = createLinkedList(anotherArr, -1);
+    headNullCheck(head);
+    head = createLinkedList(anotherArr, 0);
+    headNullCheck(head);
+    //normal case should return an existing pointer
+    head = createLinkedList(anotherArr, sizeof(anotherArr)/sizeof(int));
+    headNullCheck(head);
+    destroyLinkedList(head);
+    head = nullptr;
+    printf("**Test for CreateLinkedList parameter finished.**\n\n");
 }
 
 void headNullCheck(Node *head) {
     if (head) {
-        printf("null check error.");
+        printf("Null check error.\n");
     }
 }
 
+//Only focus on large memory for LinkNode
 //2^31*8bit=2^31Byte=2GB
 void createBigArrayCheck() {
-    srand((unsigned) time(NULL));
-    int length = INT32_MAX;
-//    int length = 100;
-    int *array = (int *) malloc(length * sizeof(int));
+
+    printf("**Test for CreateLinkedList with big array start.**\n");
+    long long actualMemory = getTotalSystemMemory();
+    long ARRAY_LENGTH_MAX = actualMemory * 0.9f / (INT_NODE_LENGTH);
+    int length = 1.2f * ARRAY_LENGTH_MAX;
+
+    srand((unsigned) time(nullptr));
+    int *array = (int *) malloc((long)length * sizeof(int));
     for (int i = 0; i < length; i++) {
         array[i] = rand();
     }
+
     Node *head = createLinkedList(array, length);
-    Free(array);
-    createNullCheck();
+    if(head == nullptr) {
+        printf("CreateLinkedList for big array failed.\n");
+    }
+    free(array);
+    array = nullptr;
     destroyLinkedList(head);
+    printf("**Test for CreateLinkedList with big array finished.**\n");
 }
 
 void createLinkedListCheck() {
@@ -191,35 +222,41 @@ void createLinkedListCheck() {
     createBigArrayCheck();
 }
 
-
-void Free(void *p) {
-    free(p);
-    p = nullptr;
-}
-
 //get all available memory on Mac(unix)
 // 17179869184(2GB) bits on my Mac
-// 17179869184 >> 2^31-1
 unsigned long long getTotalSystemMemory() {
     long pages = sysconf(_SC_PHYS_PAGES);
     long page_size = sysconf(_SC_PAGE_SIZE);
-    return pages * page_size;
+    return pages * page_size / BITS_TO_BYTE;
 }
 
 //normal case
 //with circle
 void test() {
-    //
-    int *array1 = nullptr;
-    int *array2 = nullptr;
-    int *array3 = nullptr;
-    Node *head = nullptr;
-    //test with nullptr
-    createNullCheck();
 
-    srand((unsigned) time(nullptr));
+    //bad case test
+    createLinkedListCheck();
+//
+//    //normal case
+//    int NORMAL_LENGTH = 100;
+//    int *normalArray = createArray(NORMAL_LENGTH);
+//    Node *head = createLinkedList(normalArray, NORMAL_LENGTH);
+//    Free(normalArray);
+//    bool checkRes = checkSame(normalArray, NORMAL_LENGTH, head, false);
+//    if(!checkRes) {
+//        printf("get some error");
+//    } else {
+//        printf("ok");
+//    }
+//    reverseLinkedList(head);
+//    checkSame(normalArray, NORMAL_LENGTH, head, true);
+//    if(!checkRes) {
+//        printf("get some error");
+//    } else {
+//        printf("ok");
+//    }
+//    destroyLinkedList(head);
 
-//    int randomLength =
 }
 
 //环路检测与避免
@@ -233,6 +270,7 @@ int main() {
 //    print(head);
 //    destroyLinkedList(head);
 //    print(head);
+    test();
 
     return 0;
 }
