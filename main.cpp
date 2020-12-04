@@ -11,7 +11,7 @@ struct Node {
 const int NODE_LENGTH = sizeof(Node);
 const int INT_NODE_LENGTH = sizeof(Node) + sizeof(int);
 const int BITS_TO_BYTE = 8;
-bool DEBUG = true;
+bool DEBUG = false;
 
 Node *createLinkedList(int *array, int length);
 
@@ -35,7 +35,7 @@ Node* loopTest(Node *head);
 
 int loopLength(Node *);
 
-Node* loopEntrance(Node *);
+Node* loopEntrance(Node *, int);
 
 //bad case
 //1. array points to a null pointer
@@ -90,16 +90,24 @@ void appendNode(Node *p, int val) {
 }
 
 void destroyLinkedList(Node *node) {
-    //loop test, break the chain and release the node
-    Node *res = loopTest(node);
-    if(res != nullptr) {
-        return;
-    }
-
     if (node == nullptr) {
         printf("DestroyLinkedList method, null pointer error.\n");
         return;
     }
+
+    //loop test, break the chain and release the node
+    Node *res = loopTest(node);
+    if(res != nullptr) {
+        int length = loopLength(node);
+        Node *entrance = loopEntrance(node, length);
+        Node *end = entrance;
+        for(int i = 0; i < length-1; i++) {
+            end = end->next;
+        }
+        end->next = nullptr;
+        printLinkedList(node);
+    }
+
     Node *p;
     while (node) {
         p = node->next;
@@ -114,7 +122,7 @@ Node *reverseLinkedList(Node *head) {
     Node *res = loopTest(head);
     if(res != nullptr) {
         printf("Loop founded, do not reverse\n");
-        return nullptr;
+        return head;
     }
 
     Node *cur = nullptr, *pre = head;
@@ -259,7 +267,7 @@ unsigned long long getTotalSystemMemory() {
 
 void normalCaseTest() {
     printf("**Test for CreateLinkedList with normal array start.**\n");
-    int NORMAL_LENGTH = 5;
+    int NORMAL_LENGTH = 20;
     srand((unsigned) time(nullptr));
     int *normalArray = (int *) malloc(NORMAL_LENGTH * sizeof(int));
     for (int i = 0; i < NORMAL_LENGTH; i++) {
@@ -291,7 +299,7 @@ void normalCaseTest() {
 
 Node* loopTest(Node *head) {
     if(!head) {
-        printf("LoopTest method with null pointer error.");
+        printf("LoopTest method with null pointer error.\n");
         return nullptr;
     }
     Node *slow = head->next;
@@ -326,8 +334,7 @@ int loopLength(Node *head) {
     return length;
 }
 
-Node* loopEntrance(Node *head) {
-    int length = loopLength(head);
+Node* loopEntrance(Node *head, int length) {
     if(length > 0) {
         Node *entrance = head;
         for(int i = 0; i < length; i++) {
@@ -359,7 +366,7 @@ void generateLoop(Node *head, int length) {
 
 
 void loopCaseTest() {
-    int NORMAL_LENGTH = 5;
+    int NORMAL_LENGTH = 20;
     srand((unsigned) time(nullptr));
     int *normalArray = (int *) malloc(NORMAL_LENGTH * sizeof(int));
     for (int i = 0; i < NORMAL_LENGTH; i++) {
@@ -381,16 +388,14 @@ void loopCaseTest() {
     head = reverseLinkedList(head);
     //reverse = false, do nothing
     checkRes = checkSame(normalArray, NORMAL_LENGTH, head, false);
-//    printArray(normalArray, NORMAL_LENGTH);
-//    printLinkedList(head);
     if (checkRes) {
         printf("Got some error\n");
     } else {
         printf("Reverse do nothing\n");
     }
-//    free(normalArray);
-//    normalArray = nullptr;
-//    destroyLinkedList(head);
+    free(normalArray);
+    normalArray = nullptr;
+    destroyLinkedList(head);
 }
 
 
@@ -399,10 +404,10 @@ void loopCaseTest() {
 void test() {
 
     //bad case test
-//    createLinkedListCheck();
+    createLinkedListCheck();
 
     //normal case
-//    normalCaseTest();
+    normalCaseTest();
 
     //loop case
     loopCaseTest();
