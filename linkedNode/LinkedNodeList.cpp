@@ -2,8 +2,7 @@
 // Created by sky7282 on 2020/12/4.
 //
 
-#include "Utils.h"
-#include "LinkedListNode.h"
+#include "../header/Utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 

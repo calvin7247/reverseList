@@ -1,8 +1,8 @@
 //
 // Created by sky7282 on 2020/12/4.
 //
-#include "Test.h"
-#include "Utils.h"
+#include "../header/Test.h"
+#include "../header/Utils.h"
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
